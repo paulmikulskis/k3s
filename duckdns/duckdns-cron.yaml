@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: duckdns-update
+  namespace: default
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: duckdns-update
+            image: curlimages/curl:7.78.0
+            command: ["/bin/sh", "-c", "sh /scripts/duck.sh"]
+            volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+          restartPolicy: OnFailure
+          volumes:
+          - name: scripts
+            configMap:
+              name: duckdns-script

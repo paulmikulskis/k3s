@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: yungstentech-wildcard-tls
+  namespace: default
+spec:
+  secretName: yungstentech-wildcard-tls
+  issuerRef:
+    name: letsencrypt-cloudflare
+    kind: ClusterIssuer
+  commonName: "*.yungstentech.com"
+  dnsNames:
+  - "*.yungstentech.com"
+  - yungstentech.com

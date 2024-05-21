@@ -1,0 +1,149 @@
+image:
+  repository: ghcr.io/paperless-ngx/paperless-ngx
+  tag: 2.7.2
+  pullPolicy: IfNotPresent
+
+nameOverride: ''
+fullnameOverride: ''
+
+controller:
+  enabled: true
+  kind: Deployment
+  replicas: 1
+  annotations: {}
+  labels: {}
+
+service:
+  enabled: true
+  type: ClusterIP
+  annotations: {}
+  labels: {}
+
+ingressRoute:
+  create: false
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+  hosts:
+    - host: paperless.yungstentech.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: yungstentech-wildcard-tls
+      hosts:
+        - paperless.yungstentech.com
+
+certificate:
+  create: false
+  dnsNames: []
+  secretName: ''
+  issuerRef:
+    kind: ClusterIssuer
+    name: ''
+  annotations: {}
+  labels: {}
+
+env:
+  - name: TZ
+    value: UTC
+  - name: PAPERLESS_URL
+    value: "https://paperless.yungstentech.com"
+
+ports:
+  http:
+    enabled: true
+    port: 8000
+    nodePort: null
+    protocol: TCP
+
+secret:
+  create: true
+  existingSecret: ''
+  values:
+    PAPERLESS_SECRET_KEY: '{{ randAlphaNum 42 | b64enc }}'
+    PAPERLESS_ADMIN_USER: ${PAPERLESS_ADMIN_USER}
+    PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD}
+    PAPERLESS_ADMIN_EMAIL: ${PAPERLESS_ADMIN_EMAIL}
+  annotations: {}
+  labels: {}
+
+persistentVolumeClaim:
+  create: true
+  mountPath: /usr/src/paperless
+  accessMode: ReadWriteOnce
+  volumeMode: Filesystem
+  size: 10Gi
+  storageClassName: local-path
+  existingPersistentVolumeClaim: ''
+  annotations: {}
+  labels: {}
+
+consumption:
+  enabled: true
+  type: hostPath
+  mountPath: /consumption
+  hostPath: {}
+  persistentVolumeClaim: {}
+  csi: {}
+  nfs: {}
+  emptyDir: {}
+
+media:
+  enabled: false
+  type: hostPath
+  mountPath: /media
+  hostPath: {}
+  persistentVolumeClaim: {}
+  csi: {}
+  nfs: {}
+  emptyDir: {}
+
+export:
+  enabled: true
+  type: hostPath
+  mountPath: /export
+  hostPath: {}
+  persistentVolumeClaim: {}
+  csi: {}
+  nfs: {}
+  emptyDir: {}
+  cronJob:
+    enabled: false
+    schedule: '0 4 * * 1'
+    suspend: false
+    successfulJobsHistoryLimit: 3
+    failedJobsHistoryLimit: 1
+    annotations: {}
+    labels: {}
+
+trash:
+  enabled: false
+  type: hostPath
+  mountPath: /trash
+  hostPath: {}
+  persistentVolumeClaim: {}
+  csi: {}
+  nfs: {}
+  emptyDir: {}
+
+serviceAccount:
+  name: ''
+
+rbac:
+  create: true
+  annotations: {}
+  labels: {}
+
+securityContext: {}
+resources: {}
+affinity: {}
+tolerations: []
+redis:
+  enabled: true
+  fullnameOverride: redis
+

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: duckdns-script
+  namespace: default
+data:
+  duck.sh: |
+    #!/bin/bash
+    mkdir -p /tmp/duckdns
+    echo url="https://www.duckdns.org/update?domains=yungstentech&token=${DUCKDNS_TOKEN}&ip=" | curl -k -o /tmp/duckdns/duck.log -K -
